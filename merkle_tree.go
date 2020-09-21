@@ -140,6 +140,33 @@ func (m *MerkleTree) GetMerklePath(content Content) ([][]byte, []int64, error) {
 	return nil, nil, nil
 }
 
+func (m *MerkleTree) Append(contents []Content) error {
+	root, leafs, err := buildWithContent(contents, m)
+	if err != nil {
+		return err
+	}
+
+	m.Leafs = append(m.Leafs, leafs...)
+
+	h := m.hashStrategy()
+	chash := append(m.merkleRoot, root.Hash...)
+	if _, err := h.Write(chash); err != nil {
+		return err
+	}
+	originalRoot := m.Root
+
+	newRoot := &Node{
+		Tree:  m,
+		Left:  originalRoot,
+		Right: root,
+		Hash:  h.Sum(nil),
+	}
+	m.Root = newRoot
+	m.merkleRoot = newRoot.Hash
+
+	return nil
+}
+
 //buildWithContent is a helper function that for a given set of Contents, generates a
 //corresponding tree and returns the root node, a list of leaf nodes, and a possible error.
 //Returns an error if cs contains no Contents.

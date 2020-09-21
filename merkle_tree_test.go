@@ -360,6 +360,30 @@ func TestNewTree(t *testing.T) {
 	}
 }
 
+func TestMerkleTree_Append(t *testing.T) {
+	c := TestSHA256Content{
+		x: "Uha",
+	}
+	tree, err := NewTreeWithHashStrategy(table[0].contents, table[0].hashStrategy)
+	if err != nil {
+		t.Errorf("unexpected error: %v", err)
+	}
+	if err != nil {
+		t.Errorf("unexpected error: %v", err)
+	}
+	c2 := TestSHA256Content{
+		x: "nono",
+	}
+	tree.Append([]Content{c, c2})
+	ok, err := tree.VerifyTree()
+	if !ok {
+		t.Error("error: invalid tree")
+	}
+	if err != nil {
+		t.Errorf("unexpected error: %v", err)
+	}
+}
+
 func TestNewTreeWithHashingStrategy(t *testing.T) {
 	for i := 0; i < len(table); i++ {
 		tree, err := NewTreeWithHashStrategy(table[i].contents, table[i].hashStrategy)
